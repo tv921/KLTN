@@ -20,32 +20,39 @@ client.ping()
   .then(() => console.log('Elasticsearch connection successful'))
   .catch(err => console.error('Elasticsearch connection error:', err));
 
-exports.searchDocuments = async (req, res) => {
-  const { query } = req.query;
-  try {
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter is required' });
-    }
-    const result = await client.search({
-      index: 'documents',
-      body: {
-        query: {
-          multi_match: {
-            query: query,
-            fields: ['title', 'content']
+  exports.searchDocuments = async (req, res) => {
+    const { query, indices } = req.query;
+    
+    try {
+      if (!query) {
+        return res.status(400).json({ error: 'Query parameter is required' });
+      }
+  
+     
+      const searchIndices = indices ? indices.split(',') : ['document','documents'];
+      
+      const result = await client.search({
+        index: searchIndices, // Truyền mảng các index cần tìm kiếm
+        body: {
+          query: {
+            multi_match: {
+              query: query,
+              fields: ['title', 'content']
+            }
           }
         }
-      }
-    });
-    res.json(result.hits.hits.map(hit => ({
-      id: hit._id,
-      ...hit._source
-    })));
-  } catch (error) {
-    console.error('Search error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
+      });
+      
+      res.json(result.hits.hits.map(hit => ({
+        id: hit._id,
+        index: hit._index, 
+        ...hit._source
+      })));
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 exports.addDocument = async (req, res) => {
   const { title, content } = req.body;
@@ -54,7 +61,7 @@ exports.addDocument = async (req, res) => {
       return res.status(400).json({ error: 'Title and content are required' });
     }
     await client.index({
-      index: 'documents',
+      index: 'document',
       body: {
         title,
         content,

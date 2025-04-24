@@ -21,13 +21,14 @@ app.use(express.json());
 app.use(cors());
 app.use(require('./middlewares/errorHandler'));
 
+/*
 // Kết nối MongoDB (tùy chọn)
 if (process.env.MONGODB_URI) {
   mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('MongoDB connection error:', err));
 }
-
+*/
 // Load routes sau khi dotenv config
 const searchRoutes = require('./routes/search.routes');
 app.use('/api', searchRoutes);
