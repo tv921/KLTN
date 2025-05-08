@@ -1,76 +1,14 @@
-const { Client } = require('@elastic/elasticsearch');
 
-// Debug biến môi trường
-console.log('Environment Variables in search.controller.js:', {
-  ELASTICSEARCH_URL: process.env.ELASTICSEARCH_URL,
-  ELASTICSEARCH_USERNAME: process.env.ELASTICSEARCH_USERNAME,
-  ELASTICSEARCH_PASSWORD: process.env.ELASTICSEARCH_PASSWORD
-});
+const { searchDocuments } = require('../services/elasticsearch.service');
 
-const client = new Client({
-  node: process.env.ELASTICSEARCH_URL,
-  auth: {
-    username: process.env.ELASTICSEARCH_USERNAME,
-    password: process.env.ELASTICSEARCH_PASSWORD
-  }
-});
-
-// Kiểm tra kết nối Elasticsearch
-client.ping()
-  .then(() => console.log('Elasticsearch connection successful'))
-  .catch(err => console.error('Elasticsearch connection error:', err));
-
-  exports.searchDocuments = async (req, res) => {
-    const { query, indices } = req.query;
-    
-    try {
-      if (!query) {
-        return res.status(400).json({ error: 'Query parameter is required' });
-      }
-  
-     
-      const searchIndices = indices ? indices.split(',') : ['document','documents'];
-      
-      const result = await client.search({
-        index: searchIndices, // Truyền mảng các index cần tìm kiếm
-        body: {
-          query: {
-            multi_match: {
-              query: query,
-              fields: ['title', 'content']
-            }
-          }
-        }
-      });
-      
-      res.json(result.hits.hits.map(hit => ({
-        id: hit._id,
-        index: hit._index, 
-        ...hit._source
-      })));
-    } catch (error) {
-      console.error('Search error:', error);
-      res.status(500).json({ error: error.message });
-    }
-  };
-
-exports.addDocument = async (req, res) => {
-  const { title, content } = req.body;
+async function search(req, res) {
   try {
-    if (!title || !content) {
-      return res.status(400).json({ error: 'Title and content are required' });
-    }
-    await client.index({
-      index: 'document',
-      body: {
-        title,
-        content,
-        created_at: new Date()
-      }
-    });
-    res.status(201).json({ message: 'Document added' });
+      const { query, type } = req.query; // type: 'keyword' hoặc 'semantic'
+      const response = await searchDocuments(query, type);
+      res.json(response.hits.hits);
   } catch (error) {
-    console.error('Add document error:', error);
-    res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error.message });
   }
-};
+}
+
+module.exports = { search };
