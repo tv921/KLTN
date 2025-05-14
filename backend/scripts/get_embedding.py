@@ -1,6 +1,7 @@
 import sys
 from transformers import AutoTokenizer, AutoModel
 import torch
+import json
 
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-multilingual-cased")
 model = AutoModel.from_pretrained("distilbert-base-multilingual-cased")

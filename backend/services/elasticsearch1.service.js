@@ -43,7 +43,7 @@ async function searchDocuments(query, type = 'keyword') {
             size: 50
         };
     }
-    return client.search({ index: ['documents', 'smart_documents'], body });
+    return client.search({ index: ['new_documents'], body });
 
 }
 

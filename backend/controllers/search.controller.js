@@ -1,5 +1,5 @@
 
-const { searchDocuments } = require('../services/elasticsearch.service');
+const { searchDocuments } = require('../services/elasticsearch1.service');
 
 async function search(req, res) {
   try {
