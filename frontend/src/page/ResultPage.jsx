@@ -56,17 +56,10 @@ const ResultPage = () => {
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           {document.title || 'Không có tiêu đề'}
         </h1>
-        <div className="text-sm text-gray-500 mb-4">
-          <p>
-            Ngày xuất bản:{' '}
-            {document.publish_date
-              ? new Date(document.publish_date).toLocaleDateString()
-              : 'Không rõ'}
-          </p>
-        </div>
+        
         <div className="prose prose-sm max-w-none text-gray-700">
-          {document.text ? (
-            <p>{document.text}</p>
+          {document.content? (
+            <p>{document.content}</p>
           ) : (
             <p>Không có nội dung để hiển thị.</p>
           )}

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+const getFileName = (filePath) => {
+  return filePath.split(/[/\\]/).pop(); // tách theo / hoặc \ lấy phần cuối
+};
+
 const ResultList = ({ results }) => {
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -17,24 +21,19 @@ const ResultList = ({ results }) => {
                 {result._source.title || 'Không có tiêu đề'}
               </h2>
               <p className="text-gray-600 mb-4 line-clamp-3">
-                {result._source.text
-                  ? result._source.text.slice(0, 150) + '...'
+                {result._source.content
+                  ? result._source.content.slice(0, 150) + '...'
                   : 'Không có nội dung'}
               </p>
-              <div className="text-sm text-gray-500 mb-4">
-                <span>
-                  Ngày xuất bản:{' '}
-                  {result._source.publish_date
-                    ? new Date(result._source.publish_date).toLocaleDateString()
-                    : 'Không rõ'}
-                </span>
-              </div>
-              <Link
-                to={`/result/${result._id}`}
-                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-              >
-                Xem chi tiết
-              </Link>
+             
+<a
+  href={`http://localhost:5000/documents/${getFileName(result._source.file_path)}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+>
+  Xem chi tiết
+</a>
             </div>
           ))}
         </div>
