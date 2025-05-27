@@ -3,8 +3,7 @@ import UploadFile from '../components/UploadFile';
 
 const UploadPage = () => {
   return (
-    <div>
-      <h1>Upload Tài Liệu PDF</h1>
+    <div> 
       <UploadFile />
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import ResultList from '../components/ResultList';
+import Navbar from '../components/Navbar';
 
 const SearchPage = () => {
   const [results, setResults] = useState([]);
@@ -8,14 +9,7 @@ const SearchPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Navbar */}
-      <nav className="bg-blue-600 text-white p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold">Trang Tìm Kiếm</div>
-          <div>
-            <a href="/upload" className="hover:text-blue-200">Upload Tài Liệu</a>
-          </div>
-        </div>
-      </nav>
+      <Navbar></Navbar>
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 py-8">

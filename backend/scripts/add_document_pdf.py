@@ -1,5 +1,5 @@
 import os
-import fitz# PyMuPDF
+import fitz  # PyMuPDF
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
 import torch
@@ -48,10 +48,10 @@ model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniL
 def create_index():
     # Kiểm tra xem chỉ mục đã tồn tại chưa
     if es.indices.exists(index=INDEX_NAME):
-        print(f"Index '{INDEX_NAME}' already exists, deleting and recreating.")
-        es.indices.delete(index=INDEX_NAME)  # Xóa chỉ mục cũ
+        print(f"Index '{INDEX_NAME}' already exists, skipping creation.")
+        return  # Bỏ qua việc tạo chỉ mục mới nếu đã tồn tại
 
-    # Tạo lại chỉ mục mới
+    # Nếu chỉ mục chưa tồn tại, tạo mới
     print(f"Creating index '{INDEX_NAME}'.")
     mapping = {
         "mappings": {
@@ -75,13 +75,22 @@ def create_index():
 
 # 6. Hàm index một file PDF
 def index_pdf(pdf_path):
+    # Kiểm tra xem tài liệu đã tồn tại trong Elasticsearch chưa
+    doc_id = os.path.basename(pdf_path)  # Dùng tên file làm ID tài liệu
+
+    # Kiểm tra tài liệu đã tồn tại trong Elasticsearch
+    if es.exists(index=INDEX_NAME, id=doc_id):
+        print(f"Tài liệu {pdf_path} đã tồn tại trong chỉ mục, bỏ qua.")
+        return
+
+    # Trích xuất text từ file PDF
     text = extract_text_from_pdf(pdf_path)
     if not text:
         print(f"File {pdf_path} không có nội dung để index, bỏ qua.")
         return
 
+    # Mã hóa văn bản và tạo document
     vector = model.encode(text, convert_to_numpy=True, normalize_embeddings=True).tolist()
-
     doc = {
         "title": os.path.basename(pdf_path),
         "file_path": pdf_path,
@@ -90,14 +99,16 @@ def index_pdf(pdf_path):
     }
 
     try:
-        res = es.index(index=INDEX_NAME, document=doc)
+        # Index tài liệu vào Elasticsearch
+        res = es.index(index=INDEX_NAME, id=doc_id, document=doc)
         print(f"Đã index file: {pdf_path} (id: {res['_id']})")
     except Exception as e:
         print(f"Lỗi khi index file {pdf_path}: {e}")
 
+
 # 7. Hàm index tất cả file PDF trong thư mục
 def index_pdf_folder(folder_path):
-    create_index()
+    create_index()  # Gọi hàm tạo chỉ mục chỉ nếu nó chưa tồn tại
     count = 0
     for filename in os.listdir(folder_path):
         if filename.lower().endswith(".pdf"):
@@ -110,6 +121,3 @@ def index_pdf_folder(folder_path):
 if __name__ == "__main__":
     PDF_FOLDER = r"C:\myProject\KLTN\backend\documents"  # Thay đường dẫn đúng của bạn
     index_pdf_folder(PDF_FOLDER)
-
-
-

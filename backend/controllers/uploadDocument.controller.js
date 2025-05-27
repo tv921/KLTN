@@ -36,10 +36,10 @@ const uploadDocument = async (req, res) => {
       const filePath = path.join(__dirname, 'documents', file.filename);
       await execFilePromise(filePath); // Gọi Python script để index file
     }
-    res.json({ message: 'All files uploaded and indexed successfully' });
+    res.json({ message: 'Thêm tài liệu thành công' });
   } catch (error) {
     res.status(500).json({
-      message: 'Error indexing some files',
+      message: 'Lỗi khi thêm tài liệu',
       error: error.message
     });
   }

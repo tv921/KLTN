@@ -1,24 +1,34 @@
-import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import jwtDecode from "jwt-decode";
-import axios from "axios";
-
 import SearchPage from './page/SearchPage';
 import ResultPage from './page/ResultPage';
 import UploadPage from './page/UploadPage';
+import RegisterPage from './page/RegisterPage';
+import LoginPage from './page/LoginPage';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  return(
+  return (
     <Router>
       <Routes>
-        <Route path="/search" element={<SearchPage />} />
         <Route path="/" element={<SearchPage />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/result/:id" element={<ResultPage />} />
-        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
+        {/* Chỉ admin mới truy cập */}
+        <Route
+          path="/upload"
+          element={
+            <ProtectedRoute role="admin">
+              <UploadPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );
 }
 
-export default App
+export default App;
+
