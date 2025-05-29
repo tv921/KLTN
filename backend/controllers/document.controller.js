@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { client } = require('../services/elasticsearch.service');
 
 async function getDocument(req, res) {
@@ -25,5 +27,45 @@ async function getDocument(req, res) {
   }
 }
 
+async function getAllDocuments(req, res) {
+  try {
+    const response = await client.search({
+      index: 'pdf_documents',
+      size: 100,
+      query: { match_all: {} }
+    });
 
-module.exports = { getDocument };
+    res.json(response.hits.hits);
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách tài liệu:', error);
+    res.status(500).json({ error: 'Không thể lấy danh sách tài liệu.' });
+  }
+}
+
+
+async function deleteDocument(req, res) {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).json({ message: 'Thiếu ID tài liệu' });
+
+  try {
+    // Xoá khỏi Elasticsearch
+    await client.delete({
+      index: 'pdf_documents',
+      id,
+    });
+
+    // Xoá file gốc
+    const filePath = path.join(__dirname, '../documents', id);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    res.json({ message: 'Xoá tài liệu thành công' });
+  } catch (error) {
+    console.error('Lỗi xoá tài liệu:', error);
+    res.status(500).json({ message: 'Xoá thất bại', error: error.message });
+  }
+}
+
+module.exports = { getDocument , getAllDocuments, deleteDocument};

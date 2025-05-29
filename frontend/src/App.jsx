@@ -5,6 +5,7 @@ import UploadPage from './page/UploadPage';
 import RegisterPage from './page/RegisterPage';
 import LoginPage from './page/LoginPage';
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminDocumentPage from './page/AdminDocumentPage';
 
 function App() {
   return (
@@ -25,6 +26,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/documents"
+          element={
+          <ProtectedRoute role="admin">
+          <AdminDocumentPage />
+          </ProtectedRoute>
+          }
+/>
       </Routes>
     </Router>
   );

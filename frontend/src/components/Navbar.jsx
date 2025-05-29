@@ -16,7 +16,12 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-xl font-bold">Trang Tìm Kiếm</Link>
         <div className="flex gap-4">
-          {role === 'admin' && <Link to="/upload" className="hover:text-blue-200">Upload</Link>}
+          {role === 'admin' && (
+          <>
+          <Link to="/upload" className="hover:text-blue-200">Upload</Link>
+          <Link to="/admin/documents" className="hover:text-blue-200">Quản lý tài liệu</Link>
+          </>
+          )}
           {token ? (
             <button onClick={handleLogout} className="hover:text-red-200">Đăng xuất</button>
           ) : (
