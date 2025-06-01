@@ -18,7 +18,7 @@ const Navbar = () => {
         <div className="flex gap-4">
           {role === 'admin' && (
           <>
-          <Link to="/upload" className="hover:text-blue-200">Upload</Link>
+          <Link to="/upload" className="hover:text-blue-200">Thêm tài liệu</Link>
           <Link to="/admin/documents" className="hover:text-blue-200">Quản lý tài liệu</Link>
           </>
           )}

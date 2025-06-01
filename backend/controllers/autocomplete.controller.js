@@ -19,7 +19,7 @@ async function autocomplete(req, res) {
     };
 
     const response = await client.search({
-      index: "new_documents2",
+      index: "pdf_documents",
       body
     });
 

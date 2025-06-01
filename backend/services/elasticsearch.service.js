@@ -15,12 +15,15 @@ client.ping()
   .then(() => console.log('Kết nối Elasticsearch thành công'))
   .catch(err => console.error('Lỗi kết nối Elasticsearch:', err));
 
-async function searchDocuments(query, type = 'keyword') {
+async function searchDocuments(query, type = 'keyword', page = 1, size = 10, field = 'all') {
+  const from = (page - 1) * size;
   let body;
+
   if (type === 'semantic') {
     const queryVector = await getQueryVector(query);
     body = {
-      size: 50,
+      from,
+      size,
       query: {
         script_score: {
           query: { match_all: {} },
@@ -32,12 +35,18 @@ async function searchDocuments(query, type = 'keyword') {
       }
     };
   } else {
+    // Xác định field cần tìm
+    let fields = ['title', 'content'];
+    if (field === 'title') fields = ['title'];
+    else if (field === 'content') fields = ['content'];
+
     body = {
-      size: 20,
+      from,
+      size,
       query: {
         multi_match: {
-          query: query,
-          fields: ['title', 'content'],  // sửa text -> content
+          query,
+          fields,
           fuzziness: 'AUTO'
         }
       }
@@ -45,9 +54,7 @@ async function searchDocuments(query, type = 'keyword') {
   }
 
   return client.search({ index: 'pdf_documents', body });
-
-
-
 }
+
 
 module.exports = { client, searchDocuments};

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import SearchBar from '../components/SearchBar';
 
 const getFileName = (filePath) => {
   return filePath?.split(/[/\\]/).pop();
@@ -11,6 +12,7 @@ const AdminDocumentPage = () => {
   const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -45,11 +47,35 @@ const AdminDocumentPage = () => {
   }
 };
 
+const handleSearch = async ({ query, field }) => {
+  setSearching(true);
+  setLoading(true);
+  try {
+    const res = await axios.get('http://localhost:5000/api/search', {
+      params: {
+        query,
+        field,
+        page: 1,
+        size: 20
+      }
+    });
+    setDocs(res.data.results || []);
+  } catch (error) {
+    console.error('Lỗi tìm kiếm:', error);
+  } finally {
+    setLoading(false);
+    setSearching(false);
+  }
+};
 
   return (
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-6">
+        <div className="mb-6">
+        <SearchBar onSearch={handleSearch} />
+        </div>
+
         <h1 className="text-2xl font-bold mb-4">Tài liệu đã đăng</h1>
         {loading ? (
           <p>Đang tải...</p>
@@ -72,14 +98,14 @@ const AdminDocumentPage = () => {
                 >   
                 Xem tài liệu
                 </a>
-
-                <button
+              {
+               <button
                 onClick={() => navigate(`/result/${doc._id}`)}
                 className="text-green-600 hover:underline"
                 >
                 Xem kết quả
                 </button>
-
+              }
                 <button
                 onClick={() => handleDelete(doc._id)}
                 className="mt-2 text-red-600 hover:underline"

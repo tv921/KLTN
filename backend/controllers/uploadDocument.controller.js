@@ -3,6 +3,8 @@ const path = require('path');
 const { execFile } = require('child_process');
 const express = require('express');
 const router = express.Router();
+const pLimit = require('p-limit');
+const limit = pLimit(3); // 👈 giới hạn 3 tiến trình Python đồng thời
 // Cấu hình lưu file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '../documents')), // Đảm bảo đường dẫn đúng
@@ -31,11 +33,13 @@ const uploadDocument = async (req, res) => {
   }
 
   try {
-    // Duyệt và xử lý từng file
-    for (const file of req.files) {
+    const tasks = req.files.map(file => {
       const filePath = path.join(__dirname, 'documents', file.filename);
-      await execFilePromise(filePath); // Gọi Python script để index file
-    }
+      return limit(() => execFilePromise(filePath)); // giới hạn thực thi
+    });
+
+    await Promise.all(tasks);
+
     res.json({ message: 'Thêm tài liệu thành công' });
   } catch (error) {
     res.status(500).json({
