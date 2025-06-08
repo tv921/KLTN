@@ -3,6 +3,8 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const getFileName = (filePath) => {
   return filePath?.split(/[/\\]/).pop();
@@ -41,9 +43,10 @@ const AdminDocumentPage = () => {
       headers: { Authorization: `Bearer ${token}` }
     });
     setDocs((prev) => prev.filter((doc) => doc._id !== id));
+    toast.success("✅ Đã xoá tài liệu thành công.");
   } catch (error) {
     console.error("Lỗi xoá tài liệu:", error);
-    alert("Không thể xoá tài liệu.");
+    toast.error("❌ Không thể xoá tài liệu.");
   }
 };
 
@@ -118,6 +121,7 @@ const handleSearch = async ({ query, field }) => {
             ))}
           </div>
         )}
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </>
   );

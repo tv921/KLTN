@@ -3,12 +3,18 @@ const User = require('../models/user.model');
 // Lấy danh sách tất cả người dùng (chỉ admin mới dùng)
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, '-password -otpCode -otpExpires'); // ẩn trường nhạy cảm
+    const { email, role } = req.query;
+    const filter = {};
+    if (email) filter.email = { $regex: email, $options: 'i' };
+    if (role) filter.role = role;
+
+    const users = await User.find(filter, '-password -otpCode -otpExpires');
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: 'Lỗi server', error: err.message });
   }
 };
+
 
 // Xóa người dùng
 exports.deleteUser = async (req, res) => {

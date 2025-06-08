@@ -117,5 +117,49 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
+exports.sendResetPasswordEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email không tồn tại' });
+
+    const resetCode = generateOTP();
+    user.otpCode = resetCode;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+
+    // Gửi email
+    await sendOTPEmail(email, resetCode);
+
+    res.json({ message: 'Đã gửi mã đặt lại mật khẩu đến email.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server', error: err.message });
+  }
+};
+
+// Đặt lại mật khẩu
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email không tồn tại' });
+
+    if (user.otpCode !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: 'Mã OTP không hợp lệ hoặc đã hết hạn' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otpCode = null;
+    user.otpExpires = null;
+    await user.save();
+
+    res.json({ message: 'Đặt lại mật khẩu thành công!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi server', error: err.message });
+  }
+};
+
+
 
 

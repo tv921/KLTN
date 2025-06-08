@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
+import FormCardLayout from './FormCardLayout';
 
 const AuthForm = ({ isLogin }) => {
   const navigate = useNavigate();
@@ -46,45 +50,42 @@ const AuthForm = ({ isLogin }) => {
         localStorage.setItem('role', res.data.user.role);
         navigate(res.data.user.role === 'admin' ? '/search' : '/upload');
       } else {
-        setSuccess('Đăng ký thành công! Vui lòng kiểm tra email và nhập mã OTP để xác minh.');
-        setShowOtpForm(true); // Hiển thị form OTP
+        toast.success('Đăng ký thành công! Vui lòng kiểm tra email và nhập mã OTP để xác minh.');
+        setShowOtpForm(true);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Đã xảy ra lỗi');
+      toast.error(err.response?.data?.message || 'Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerifyOTP = async () => {
-  setError('');
-  try {
-    const res = await axios.post('http://localhost:5000/api/auth/verify-otp', {
-      email,
-      otp
-    });
-    setSuccess(res.data.message || 'Xác minh thành công!');
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
-  } catch (err) {
-    setError(err.response?.data?.message || 'Xác minh thất bại');
-  }
-};
-
+    setError('');
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/verify-otp', {
+        email,
+        otp
+      });
+      toast.success(res.data.message || 'Xác minh thành công!');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Xác minh thất bại');
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-full max-w-md space-y-4">
-        <h2 className="text-xl font-bold text-center">{isLogin ? 'Đăng nhập' : 'Đăng ký'}</h2>
-        
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {success && <p className="text-green-600 text-sm">{success}</p>}
+    <FormCardLayout title={isLogin ? 'Đăng nhập vào hệ thống' : 'Tạo tài khoản mới'}>
+      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+      {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
 
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="Email"
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -92,7 +93,7 @@ const AuthForm = ({ isLogin }) => {
         <input
           type="password"
           placeholder="Mật khẩu"
-          className="w-full p-3 border rounded"
+          className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -101,42 +102,53 @@ const AuthForm = ({ isLogin }) => {
           <input
             type="password"
             placeholder="Xác nhận mật khẩu"
-            className="w-full p-3 border rounded"
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         )}
 
+        {isLogin && (
+          <div className="text-right text-sm">
+            <Link to="/reset-password" className="text-blue-600 hover:underline">
+              Quên mật khẩu?
+            </Link>
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={loading}
-          className={`w-full p-3 rounded text-white ${loading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
+          className={`w-full p-3 rounded font-semibold text-white transition duration-200 ${
+            loading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
           {loading ? 'Đang xử lý...' : isLogin ? 'Đăng nhập' : 'Đăng ký'}
         </button>
-
-        {showOtpForm && (
-        <div className="space-y-3">
-        <input
-        type="text"
-        placeholder="Nhập mã OTP"
-        className="w-full p-3 border rounded"
-        value={otp}
-        onChange={(e) => setOtp(e.target.value)}
-        />
-        <button
-          type="button"
-          onClick={handleVerifyOTP}
-          className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700"
-        >
-          Xác minh OTP
-        </button>
-        </div>
-        )}
-
       </form>
-    </div>
+
+      {showOtpForm && (
+        <div className="mt-6 space-y-3">
+          <input
+            type="text"
+            placeholder="Nhập mã OTP"
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={handleVerifyOTP}
+            className="w-full bg-green-600 text-white p-3 rounded hover:bg-green-700 transition duration-200"
+          >
+            Xác minh OTP
+          </button>
+        </div>
+      )}
+      <ToastContainer position="top-right" autoClose={3000} />
+    </FormCardLayout>
   );
 };
 
 export default AuthForm;
+

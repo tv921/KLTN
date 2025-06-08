@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 import SearchPage from './page/SearchPage';
 import ResultPage from './page/ResultPage';
 import UploadPage from './page/UploadPage';
@@ -8,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDocumentPage from './page/AdminDocumentPage';
 import AdminUserPage from './page/AdminUserPage';
 import AdminSearchHistoryPage from "./page/AdminSearchHistoryPage";
+import ResetPasswordPage from "./page/ResetPasswordPage";
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/admin/users" element={<AdminUserPage />} />
         <Route path="/admin/search-history" element={<AdminSearchHistoryPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* Chỉ admin mới truy cập */}
         <Route
