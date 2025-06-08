@@ -6,7 +6,9 @@ require('dotenv').config();
 
 const searchRoutes = require('./routes/search.routes');
 const documentRoutes = require('./routes/document.routes');
-const authRoutes = require('./routes/auth.routes'); // 👈 NEW
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
+const searchHistoryRoutes = require('./routes/searchHistory.routes');
 
 const app = express();
 
@@ -30,7 +32,9 @@ app.use('/documents', express.static(path.join(__dirname, 'documents')));
 // Tuyến API
 app.use('/api', searchRoutes);
 app.use('/api', documentRoutes);
-app.use('/api/auth', authRoutes); // 👈 NEW
+app.use('/api/auth', authRoutes); 
+app.use('/api', userRoutes);
+app.use('/api', searchHistoryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

@@ -98,14 +98,14 @@ const handleSearch = async ({ query, field }) => {
                 >   
                 Xem tài liệu
                 </a>
-              {
+              {/*
                <button
                 onClick={() => navigate(`/result/${doc._id}`)}
                 className="text-green-600 hover:underline"
                 >
                 Xem kết quả
                 </button>
-              }
+              */}
                 <button
                 onClick={() => handleDelete(doc._id)}
                 className="mt-2 text-red-600 hover:underline"

@@ -1,8 +1,11 @@
 {
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
+    "nodemailer": "^7.0.3",
     "p-limit": "^6.2.0"
   }
 }

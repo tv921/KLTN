@@ -20,6 +20,8 @@ const Navbar = () => {
           <>
           <Link to="/upload" className="hover:text-blue-200">Thêm tài liệu</Link>
           <Link to="/admin/documents" className="hover:text-blue-200">Quản lý tài liệu</Link>
+          <Link to="/admin/users" className="hover:text-blue-200">Quản lý tài khoản</Link>
+          <Link to="/admin/search-history" className="hover:text-blue-200">Lịch sử tìm kiếm</Link>
           </>
           )}
           {token ? (

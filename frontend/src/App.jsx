@@ -6,6 +6,8 @@ import RegisterPage from './page/RegisterPage';
 import LoginPage from './page/LoginPage';
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminDocumentPage from './page/AdminDocumentPage';
+import AdminUserPage from './page/AdminUserPage';
+import AdminSearchHistoryPage from "./page/AdminSearchHistoryPage";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/result/:id" element={<ResultPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/admin/users" element={<AdminUserPage />} />
+        <Route path="/admin/search-history" element={<AdminSearchHistoryPage />} />
 
         {/* Chỉ admin mới truy cập */}
         <Route

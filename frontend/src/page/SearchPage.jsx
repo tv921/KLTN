@@ -20,8 +20,14 @@ const SearchPage = () => {
 
   const fetchResults = async (q, p, f = field) => {
   try {
-    const res = await fetch(
-      `http://localhost:5000/api/search?query=${encodeURIComponent(q)}&page=${p}&size=${pageSize}&field=${f}`
+    const token = localStorage.getItem('token');
+      const res = await fetch(
+      `http://localhost:5000/api/search?query=${encodeURIComponent(q)}&page=${p}&size=${pageSize}&field=${f}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }
     );
 
     if (!res.ok) {
