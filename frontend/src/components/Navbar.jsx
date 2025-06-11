@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaBookOpen, FaUser, FaUpload, FaSignOutAlt, FaHistory } from 'react-icons/fa';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -12,20 +13,34 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-600 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold">Trang Tìm Kiếm</Link>
-        <div className="flex gap-4">
+    <nav className="bg-blue-700 text-white py-4 shadow-md">
+      <div className="container mx-auto px-6 flex justify-between items-center">
+        <Link to="/" className="flex items-center gap-2 text-2xl font-bold">
+          <FaBookOpen className="text-white" />
+          <span>Tra cứu tài liệu</span>
+        </Link>
+
+        <div className="flex items-center gap-5 text-sm">
           {role === 'admin' && (
-          <>
-          <Link to="/upload" className="hover:text-blue-200">Thêm tài liệu</Link>
-          <Link to="/admin/documents" className="hover:text-blue-200">Quản lý tài liệu</Link>
-          <Link to="/admin/users" className="hover:text-blue-200">Quản lý tài khoản</Link>
-          <Link to="/admin/search-history" className="hover:text-blue-200">Lịch sử tìm kiếm</Link>
-          </>
+            <>
+              <Link to="/upload" className="hover:text-blue-200 flex items-center gap-1">
+                <FaUpload /> Thêm tài liệu
+              </Link>
+              <Link to="/admin/documents" className="hover:text-blue-200 flex items-center gap-1">
+                <FaBookOpen /> Quản lý tài liệu
+              </Link>
+              <Link to="/admin/users" className="hover:text-blue-200 flex items-center gap-1">
+                <FaUser /> Tài khoản
+              </Link>
+              <Link to="/admin/search-history" className="hover:text-blue-200 flex items-center gap-1">
+                <FaHistory /> Lịch sử tìm kiếm
+              </Link>
+            </>
           )}
           {token ? (
-            <button onClick={handleLogout} className="hover:text-red-200">Đăng xuất</button>
+            <button onClick={handleLogout} className="hover:text-red-200 flex items-center gap-1">
+              <FaSignOutAlt /> Đăng xuất
+            </button>
           ) : (
             <>
               <Link to="/login" className="hover:text-blue-200">Đăng nhập</Link>
@@ -39,4 +54,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

@@ -9,65 +9,83 @@ const SearchPage = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [field, setField] = useState('all');
+  const [loading, setLoading] = useState(false);
   const pageSize = 8;
 
- const handleSearch = ({ query, field }) => {
-  setQuery(query);
-  setField(field);
-  setPage(1);
-  fetchResults(query, 1, field);
-};
+  const handleSearch = ({ query, field }) => {
+    setQuery(query);
+    setField(field);
+    setPage(1);
+    fetchResults(query, 1, field);
+  };
 
   const fetchResults = async (q, p, f = field) => {
-  try {
-    const token = localStorage.getItem('token');
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
       const res = await fetch(
-      `http://localhost:5000/api/search?query=${encodeURIComponent(q)}&page=${p}&size=${pageSize}&field=${f}`,
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
+        `http://localhost:5000/api/search?query=${encodeURIComponent(q)}&page=${p}&size=${pageSize}&field=${f}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         }
+      );
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
       }
-    );
 
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`HTTP ${res.status}: ${text}`);
+      const data = await res.json();
+      setResults(data.results || data);
+      setTotal(data.total || data.length || 0);
+    } catch (error) {
+      console.error('Lỗi khi tìm kiếm:', error);
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const data = await res.json();
-    setResults(data.results || data);
-    setTotal(data.total || data.length || 0);
-  } catch (error) {
-    console.error('Lỗi khi tìm kiếm:', error);
-    setResults([]);
-  }
-};
-
-useEffect(() => {
-  if (query) {
-    fetchResults(query, page, field);
-  }
-}, [page]);
+  useEffect(() => {
+    if (query) {
+      fetchResults(query, page, field);
+    }
+  }, [page]);
 
   const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
       <Navbar />
 
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="mt-8">
+      <main className="flex-grow container mx-auto px-6 py-10">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-blue-700">Tìm kiếm tài liệu thông minh</h1> 
+        </div>
+
+        <div className="mb-6">
           <SearchBar onSearch={handleSearch} />
         </div>
-        <ResultList results={results} />
+
+        {!loading && total > 0 && (
+          <p className="text-center text-gray-500 mb-4">Tìm thấy {total} tài liệu</p>
+        )}
+
+        {loading ? (
+          <div className="text-center text-gray-600 mt-10">Đang tìm kiếm...</div>
+        ) : (
+          <ResultList results={results} />
+        )}
+
         {totalPages > 1 && (
           <div className="flex justify-center mt-6 space-x-2">
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i}
                 onClick={() => setPage(i + 1)}
-                className={`px-4 py-2 rounded ${page === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+                className={`px-4 py-2 rounded ${page === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
               >
                 {i + 1}
               </button>
