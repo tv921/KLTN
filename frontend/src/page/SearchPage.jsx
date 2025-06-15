@@ -9,28 +9,39 @@ const SearchPage = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [field, setField] = useState('all');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(false);
   const pageSize = 8;
 
-  const handleSearch = ({ query, field }) => {
+  const handleSearch = ({ query, field, fromDate, toDate }) => {
     setQuery(query);
     setField(field);
+    setFromDate(fromDate);
+    setToDate(toDate);
     setPage(1);
-    fetchResults(query, 1, field);
+    fetchResults(query, 1, field, fromDate, toDate);
   };
 
-  const fetchResults = async (q, p, f = field) => {
+  const fetchResults = async (q, p, f = field, from = fromDate, to = toDate) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const res = await fetch(
-        `http://localhost:5000/api/search?query=${encodeURIComponent(q)}&page=${p}&size=${pageSize}&field=${f}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+
+      const params = new URLSearchParams({
+        query: q,
+        page: p,
+        size: pageSize,
+        field: f,
+        fromDate: from,
+        toDate: to
+      });
+
+      const res = await fetch(`http://192.168.1.8:5000/api/search?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      );
+      });
 
       if (!res.ok) {
         const text = await res.text();
@@ -50,7 +61,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (query) {
-      fetchResults(query, page, field);
+      fetchResults(query, page, field, fromDate, toDate);
     }
   }, [page]);
 

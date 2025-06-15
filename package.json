@@ -8,5 +8,13 @@
     "nodemailer": "^7.0.3",
     "p-limit": "^6.2.0",
     "react-toastify": "^11.0.5"
+  },
+  "devDependencies": {
+    "@react-pdf-viewer/core": "^3.12.0",
+    "@react-pdf-viewer/default-layout": "^3.12.0",
+    "pdfjs-dist": "^3.0.279",
+    "react-pdf": "^7.0.0",
+    "vite-plugin-static-copy": "^3.0.0",
+    "vite-plugin-wasm": "^3.4.1"
   }
 }

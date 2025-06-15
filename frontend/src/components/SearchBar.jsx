@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaAngleDown } from 'react-icons/fa';
 
 const SearchBar = ({ onSearch }) => {
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
   const [query, setQuery] = useState('');
   const [field, setField] = useState('all');
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   const handleSearch = () => {
     if (query.trim() !== '') {
-      onSearch({ query, field });
+      onSearch({ query, field, fromDate, toDate });
     }
+  };
+
+  const toggleAdvancedOptions = () => {
+    setIsAdvancedOpen(!isAdvancedOpen);
   };
 
   return (
@@ -25,15 +32,13 @@ const SearchBar = ({ onSearch }) => {
           <FaSearch className="absolute left-4 top-4 text-gray-400" />
         </div>
 
-        <select
-          value={field}
-          onChange={(e) => setField(e.target.value)}
-          className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <button
+          onClick={toggleAdvancedOptions}
+          className="flex items-center px-4 py-3 rounded-xl shadow-sm text-sm hover:bg-gray-100 transition"
         >
-          <option value="all">Tất cả</option>
-          <option value="title">Tên file</option>
-          <option value="content">Nội dung</option>
-        </select>
+          Lọc
+          <FaAngleDown className={`ml-2 transition-transform ${isAdvancedOpen ? 'rotate-180' : ''}`} />
+        </button>
 
         <button
           onClick={handleSearch}
@@ -42,9 +47,40 @@ const SearchBar = ({ onSearch }) => {
           Tìm kiếm
         </button>
       </div>
+
+      {isAdvancedOpen && (
+        <div className="mt-4 flex flex-col sm:flex-row gap-4">
+          <select
+            value={field}
+            onChange={(e) => setField(e.target.value)}
+            className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">Tất cả</option>
+            <option value="title">Tên file</option>
+            <option value="content">Nội dung</option>
+          </select>
+          <div className="flex gap-2 flex-wrap items-center">
+            <p>Ngày ban hành:</p>
+            
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-xl text-sm"
+              placeholder="Từ ngày"
+            />
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-xl text-sm"
+              placeholder="Đến ngày"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default SearchBar;
-

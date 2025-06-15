@@ -71,6 +71,15 @@ const handleUpload = async () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
         <div className="bg-white shadow-xl rounded-lg p-8 w-full max-w-md">
 
+          {/* PHẦN MÔ TẢ MỚI THÊM */}
+        <div className="mb-6 text-center">
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Tải lên tài liệu PDF</h2>
+          <p className="text-sm text-gray-600">
+            Bạn có thể chọn một hoặc nhiều tệp PDF để tải lên hệ thống. Sau khi được xử lý, nội dung tài liệu sẽ
+            được phân tích và lưu trữ để phục vụ cho chức năng tìm kiếm thông minh.
+          </p>
+        </div>
+
           <input
             type="file"
             accept=".pdf"

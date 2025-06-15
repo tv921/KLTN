@@ -6,33 +6,10 @@ import torch
 from dotenv import load_dotenv
 import sys
 import io
-import re
-from datetime import datetime
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8') 
 
 # 1. Trích xuất text từ PDF dùng fitz (PyMuPDF)
-
-def extract_promulgation_date(text):
-    # Regex tìm ngày dạng: "ngày 12 tháng 06 năm 2025", "12/06/2025", ...
-    patterns = [
-        r"ngày\s*(\d{1,2})\s*tháng\s*(\d{1,2})\s*năm\s*(\d{4})",
-        r"(\d{1,2})/(\d{1,2})/(\d{4})",
-        r"(\d{1,2})-(\d{1,2})-(\d{4})"
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-        if match:
-            try:
-                day, month, year = map(int, match.groups())
-                date = datetime(year, month, day)
-                return date.strftime("%Y-%m-%d")  # ISO format
-            except:
-                continue
-    return None  # Không tìm thấy
-
-
 def extract_text_from_pdf(pdf_path):
     try:
         doc = fitz.open(pdf_path)
@@ -61,7 +38,7 @@ if ELASTIC_USER and ELASTIC_PASS:
 else:
     es = Elasticsearch(ELASTIC_URL)
 
-INDEX_NAME = "pdf_documents1"
+INDEX_NAME = "pdf_documents"
 
 # 4. Load mô hình embedding
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -82,7 +59,6 @@ def create_index():
                 "title": {"type": "keyword"},
                 "file_path": {"type": "keyword"},
                 "content": {"type": "text"},
-                "ngay_ban_hanh": {"type": "date"},
                 "vector": {
                     "type": "dense_vector",
                     "dims": 384,
@@ -99,34 +75,35 @@ def create_index():
 
 # 6. Hàm index một file PDF
 def index_pdf(pdf_path):
-    doc_id = os.path.basename(pdf_path)
+    # Kiểm tra xem tài liệu đã tồn tại trong Elasticsearch chưa
+    doc_id = os.path.basename(pdf_path)  # Dùng tên file làm ID tài liệu
+
+    # Kiểm tra tài liệu đã tồn tại trong Elasticsearch
     if es.exists(index=INDEX_NAME, id=doc_id):
         print(f"Tài liệu {pdf_path} đã tồn tại trong chỉ mục, bỏ qua.")
         return
 
+    # Trích xuất text từ file PDF
     text = extract_text_from_pdf(pdf_path)
     if not text:
         print(f"File {pdf_path} không có nội dung để index, bỏ qua.")
         return
 
-    # Trích xuất ngày ban hành
-    ngay_ban_hanh = extract_promulgation_date(text)
-
+    # Mã hóa văn bản và tạo document
     vector = model.encode(text, convert_to_numpy=True, normalize_embeddings=True).tolist()
     doc = {
         "title": os.path.basename(pdf_path),
         "file_path": pdf_path,
         "content": text,
-        "vector": vector,
-        "ngay_ban_hanh": ngay_ban_hanh  # Có thể là None nếu không tìm thấy
+        "vector": vector
     }
 
     try:
+        # Index tài liệu vào Elasticsearch
         res = es.index(index=INDEX_NAME, id=doc_id, document=doc)
-        print(f"Đã index file: {pdf_path} (id: {res['_id']}) - Ngày ban hành: {ngay_ban_hanh}")
+        print(f"Đã index file: {pdf_path} (id: {res['_id']})")
     except Exception as e:
         print(f"Lỗi khi index file {pdf_path}: {e}")
-
 
 
 # 7. Hàm index tất cả file PDF trong thư mục

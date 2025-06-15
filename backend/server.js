@@ -19,7 +19,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/document-db', {
 
 // Cấu hình CORS
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://192.168.1.8:5173'], // Cho phép cả localhost và IP LAN
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

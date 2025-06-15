@@ -20,12 +20,13 @@ const AdminDocumentPage = () => {
     const fetchDocuments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/admin/documents', {
+        const res = await axios.get('http://192.168.1.8:5000/api/admin/documents', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setDocs(res.data);
       } catch (err) {
         console.error('Lỗi khi tải danh sách tài liệu:', err);
+        toast.error("❌ Lỗi khi tải tài liệu.");
       } finally {
         setLoading(false);
       }
@@ -34,94 +35,127 @@ const AdminDocumentPage = () => {
   }, []);
 
   const handleDelete = async (id) => {
-  const confirm = window.confirm("Bạn có chắc chắn muốn xoá tài liệu này?");
-  if (!confirm) return;
+    const confirm = window.confirm("Bạn có chắc chắn muốn xoá tài liệu này?");
+    if (!confirm) return;
 
-  try {
-    const token = localStorage.getItem('token');
-    await axios.delete(`http://localhost:5000/api/document/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    setDocs((prev) => prev.filter((doc) => doc._id !== id));
-    toast.success("✅ Đã xoá tài liệu thành công.");
-  } catch (error) {
-    console.error("Lỗi xoá tài liệu:", error);
-    toast.error("❌ Không thể xoá tài liệu.");
-  }
-};
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/document/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setDocs((prev) => prev.filter((doc) => doc._id !== id));
+      toast.success("✅ Đã xoá tài liệu thành công.");
+    } catch (error) {
+      console.error("Lỗi xoá tài liệu:", error);
+      toast.error("❌ Không thể xoá tài liệu.");
+    }
+  };
 
-const handleSearch = async ({ query, field }) => {
-  setSearching(true);
-  setLoading(true);
-  try {
-    const res = await axios.get('http://localhost:5000/api/search', {
-      params: {
+  const handleSearch = async ({ query, field, fromDate, toDate }) => {
+    setSearching(true);
+    setLoading(true);
+    try {
+      const params = {
         query,
         field,
         page: 1,
-        size: 20
-      }
-    });
-    setDocs(res.data.results || []);
-  } catch (error) {
-    console.error('Lỗi tìm kiếm:', error);
-  } finally {
-    setLoading(false);
-    setSearching(false);
-  }
-};
+        size: 20,
+      };
+      if (fromDate) params.fromDate = fromDate;
+      if (toDate) params.toDate = toDate;
+
+      const res = await axios.get('http://localhost:5000/api/search', {
+        params,
+      });
+      setDocs(res.data.results || []);
+    } catch (error) {
+      console.error('Lỗi tìm kiếm:', error);
+      toast.error("❌ Lỗi khi tìm kiếm tài liệu.");
+    } finally {
+      setLoading(false);
+      setSearching(false);
+    }
+  };
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-        <SearchBar onSearch={handleSearch} />
+      <div className="container mx-auto px-4 py-8 bg-gray-50 min-h-screen">
+        <div className="mb-8">
+          <SearchBar onSearch={handleSearch} />
         </div>
 
-        <h1 className="text-2xl font-bold mb-4">Tài liệu đã đăng</h1>
-        {loading ? (
-          <p>Đang tải...</p>
-        ) : (
-          <div className="grid gap-4">
-            {docs.map((doc) => (
-              <div key={doc._id} className="border p-4 rounded shadow">
-                <h2 className="font-semibold text-lg">
-                  {doc._source.title || 'Không có tiêu đề'}
-                </h2>
-                <p className="text-sm text-gray-600 line-clamp-2">
-                  {doc._source.content?.slice(0, 150)}...
-                </p>
-                <div className="mb-4">
-                    <a
-                href={`http://localhost:5000/documents/${getFileName(doc._source.file_path)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-2 mr-4 text-blue-600 hover:underline"
-                >   
-                Xem tài liệu
-                </a>
-              {/*
-               <button
-                onClick={() => navigate(`/result/${doc._id}`)}
-                className="text-green-600 hover:underline"
-                >
-                Xem kết quả
-                </button>
-              */}
-                <button
-                onClick={() => handleDelete(doc._id)}
-                className="mt-2 text-red-600 hover:underline"
-                >
-                Xoá tài liệu
-                </button>
-                </div>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Quản lý tài liệu</h1>
+          <span className="text-sm text-gray-500">
+            Tổng số: {docs.length} tài liệu
+          </span>
+        </div>
 
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+          </div>
+        ) : docs.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <p className="text-gray-500 text-lg">
+              {searching ? 'Không tìm thấy tài liệu phù hợp' : 'Chưa có tài liệu nào'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {docs.map((doc) => (
+              <div
+                key={doc._id}
+                className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <h2 className="font-semibold text-lg text-gray-800 line-clamp-1">
+                    {doc._source.title || 'Không có tiêu đề'}
+                  </h2>
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                    {getFileName(doc._source.file_path)?.split('.').pop().toUpperCase()}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 line-clamp-2 mb-4">
+                  {doc._source.content?.slice(0, 150) || 'Không có mô tả'}...
+                </p>
+                <div className="flex gap-3">
+                  <a
+                    href={`http://localhost:5000/documents/${getFileName(doc._source.file_path)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Xem
+                  </a>
+                  <button
+                    onClick={() => handleDelete(doc._id)}
+                    className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 text-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Xoá
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer 
+          position="top-right" 
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
       </div>
     </>
   );

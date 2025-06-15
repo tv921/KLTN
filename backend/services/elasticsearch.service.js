@@ -15,7 +15,7 @@ client.ping()
   .then(() => console.log('Kết nối Elasticsearch thành công'))
   .catch(err => console.error('Lỗi kết nối Elasticsearch:', err));
 
-async function searchDocuments(query, type = 'keyword', page = 1, size = 10, field = 'all') {
+async function searchDocuments(query, type = 'keyword', page = 1, size = 10, field = 'all', fromDate, toDate){
   const from = (page - 1) * size;
   let body;
 
@@ -36,24 +36,41 @@ async function searchDocuments(query, type = 'keyword', page = 1, size = 10, fie
     };
   } else {
     // Xác định field cần tìm
-    let fields = ['title', 'content'];
-    if (field === 'title') fields = ['title'];
-    else if (field === 'content') fields = ['content'];
+      let fields = ['title', 'content'];
+      if (field === 'title') fields = ['title'];
+      else if (field === 'content') fields = ['content'];
 
-    body = {
-      from,
-      size,
-      query: {
+      const must = [{
         multi_match: {
           query,
           fields,
           fuzziness: 'AUTO'
         }
+      }];
+
+
+      const filter = [];
+
+      if (fromDate || toDate) {
+        const range = {};
+        if (fromDate) range.gte = fromDate;
+        if (toDate) range.lte = toDate;
+        filter.push({ range: { ngay_ban_hanh: range } });
       }
-    };
+
+      body = {
+        from,
+        size,
+        query: {
+          bool: {
+            must,
+            filter
+          }
+        }
+      };
   }
 
-  return client.search({ index: 'pdf_documents', body });
+  return client.search({ index: 'pdf_documents1', body });
 }
 
 

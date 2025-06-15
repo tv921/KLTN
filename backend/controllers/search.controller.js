@@ -5,9 +5,8 @@ const SearchHistory = require('../models/searchHistory.model');
 
 async function search(req, res) {
   try {
-    const { query, type = 'keyword', page = 1, size = 10, field = 'all' } = req.query;
-
-    const response = await searchDocuments(query, type, parseInt(page), parseInt(size), field);
+   const { query, type = 'keyword', page = 1, size = 10, field = 'all', fromDate, toDate } = req.query;
+   const response = await searchDocuments(query, type, parseInt(page), parseInt(size), field, fromDate, toDate);
 
     // ✅ Ghi lại lịch sử tìm kiếm nếu có user
     if (req.user) {

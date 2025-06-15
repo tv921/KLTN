@@ -26,14 +26,25 @@ const ResultList = ({ results }) => {
                   : 'Không có nội dung'}
               </p>
              
-<a
-  href={`http://localhost:5000/documents/${getFileName(result._source.file_path)}`}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
->
-  Xem chi tiết
-</a>
+              <a
+                href={`http://localhost:5000/documents/${getFileName(result._source.file_path)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Xem chi tiết
+              </a>
+
+            {/*
+            <Link
+              to={`/viewer/${getFileName(result._source.file_path)}`}
+              className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              target="_blank"  // Mở trong tab mới
+              rel="noopener noreferrer"  // Bảo mật chống tabnabbing
+            >
+              Xem nội dung
+            </Link>
+            */}
             </div>
           ))}
         </div>

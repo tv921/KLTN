@@ -40,7 +40,7 @@ const AuthForm = ({ isLogin }) => {
     setLoading(true);
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const res = await axios.post(`http://localhost:5000${endpoint}`, {
+      const res = await axios.post(`http://192.168.1.8:5000${endpoint}`, {
         email,
         password
       });

@@ -14,7 +14,7 @@ const upload = multer({ storage });
 
 const execFilePromise = (filePath) =>
   new Promise((resolve, reject) => {
-    execFile('python', ['C:/myProject/KLTN/backend/scripts/add_document_pdf.py', filePath], { shell: true }, (err, stdout, stderr) => {
+    execFile('python', ['C:/myProject/KLTN/backend/scripts/add_document_pdf2.py', filePath], { shell: true }, (err, stdout, stderr) => {
       if (err) {
         console.error(`Error indexing PDF ${filePath}:`, err);
         return reject(err);
