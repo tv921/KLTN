@@ -10,7 +10,7 @@ import AdminDocumentPage from './page/AdminDocumentPage';
 import AdminUserPage from './page/AdminUserPage';
 import AdminSearchHistoryPage from "./page/AdminSearchHistoryPage";
 import ResetPasswordPage from "./page/ResetPasswordPage";
-import PdfViewerWrapper from './components/PdfViewerWrapper';
+
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
         <Route path="/admin/users" element={<AdminUserPage />} />
         <Route path="/admin/search-history" element={<AdminSearchHistoryPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/viewer/:filename" element={<PdfViewerWrapper />} />
+       
 
         {/* Chỉ admin mới truy cập */}
         <Route
