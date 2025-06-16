@@ -56,3 +56,4 @@ coverage/
 .eslintcache
 .stylelintcache
 .cache
+backend/model_cache/
