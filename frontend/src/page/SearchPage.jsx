@@ -11,59 +11,71 @@ const SearchPage = () => {
   const [field, setField] = useState('all');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [documentType, setDocumentType] = useState('');
   const [loading, setLoading] = useState(false);
   const pageSize = 8;
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = ({ query, field, fromDate, toDate }) => {
-    setQuery(query);
-    setField(field);
-    setFromDate(fromDate);
-    setToDate(toDate);
-    setPage(1);
-    fetchResults(query, 1, field, fromDate, toDate);
-  };
 
-  const fetchResults = async (q, p, f = field, from = fromDate, to = toDate) => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('token');
+  // ✅ Gọi khi người dùng nhấn "Tìm kiếm"
+const handleSearch = ({ query, field, fromDate, toDate, documentType }) => {
+  setQuery(query);
+  setField(field);
+  setFromDate(fromDate);
+  setToDate(toDate);
+  setDocumentType(documentType);
+  setPage(1);
+  setHasSearched(true); // ✅ Đánh dấu là đã nhấn nút tìm kiếm
+  fetchResults(query, 1, field, fromDate, toDate, documentType);
+};
 
-      const params = new URLSearchParams({
-        query: q,
-        page: p,
-        size: pageSize,
-        field: f,
-        fromDate: from,
-        toDate: to
-      });
 
-      const res = await fetch(`http://192.168.1.8:5000/api/search?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+  // ✅ Hàm fetch dữ liệu từ backend
+  const fetchResults = async (q, p, f = field, from = fromDate, to = toDate, docType = documentType) => {
+  try {
+    setLoading(true);
+    const token = localStorage.getItem('token');
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`HTTP ${res.status}: ${text}`);
+    const params = new URLSearchParams();
+    params.append('query', q || '');
+    params.append('page', p);
+    params.append('size', pageSize);
+    params.append('field', f || 'all');
+
+    if (from) params.append('fromDate', from);
+    if (to) params.append('toDate', to);
+    if (docType) params.append('documentType', docType);
+
+    const res = await fetch(`http://localhost:5000/api/search?${params.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
+    });
 
-      const data = await res.json();
-      setResults(data.results || data);
-      setTotal(data.total || data.length || 0);
-    } catch (error) {
-      console.error('Lỗi khi tìm kiếm:', error);
-      setResults([]);
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`HTTP ${res.status}: ${text}`);
     }
-  };
 
-  useEffect(() => {
-    if (query) {
-      fetchResults(query, page, field, fromDate, toDate);
-    }
-  }, [page]);
+    const data = await res.json();
+    setResults(data.results || data);
+    setTotal(data.total || data.length || 0);
+  } catch (error) {
+    console.error('Lỗi khi tìm kiếm:', error);
+    setResults([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // ✅ Khi người dùng chuyển trang
+ useEffect(() => {
+  if (hasSearched) {
+    fetchResults(query, page, field, fromDate, toDate, documentType);
+  }
+}, [page]);
+
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -73,7 +85,7 @@ const SearchPage = () => {
 
       <main className="flex-grow container mx-auto px-6 py-10">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-blue-700">Tìm kiếm tài liệu thông minh</h1> 
+          <h1 className="text-4xl font-bold text-blue-700">Tìm kiếm tài liệu thông minh</h1>
         </div>
 
         <div className="mb-6">

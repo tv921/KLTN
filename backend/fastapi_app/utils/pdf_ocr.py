@@ -1,20 +1,17 @@
+
 import os
 import re
-import sys
-import io
 import time
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 from dotenv import load_dotenv
 
 import torch
 from elasticsearch import Elasticsearch
 from sentence_transformers import SentenceTransformer
-import easyocr
 from pdf2image import convert_from_path
 import pytesseract
 
-# Cấu hình tesseract & poppler
+# Cấu hình Tesseract & Poppler
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 POPPLER_PATH = r"C:\Program Files\poppler-24.08.0\Library\bin"
 
@@ -23,7 +20,7 @@ load_dotenv()
 ELASTIC_URL = os.getenv("ELASTICSEARCH_URL", "http://localhost:9200")
 ELASTIC_USER = os.getenv("ELASTICSEARCH_USERNAME")
 ELASTIC_PASS = os.getenv("ELASTICSEARCH_PASSWORD")
-INDEX_NAME = "pdf_documents1"
+INDEX_NAME = "pdf_documents2"
 
 # Elasticsearch client
 if ELASTIC_USER and ELASTIC_PASS:
@@ -35,17 +32,14 @@ if ELASTIC_USER and ELASTIC_PASS:
 else:
     es = Elasticsearch(ELASTIC_URL)
 
-# Mô hình vector
+# Mô hình SentenceTransformer để tạo vector
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = SentenceTransformer('sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2', device=device)
 
-# OCR Reader
-reader = easyocr.Reader(['vi'], gpu=torch.cuda.is_available(), verbose=False)
-
 # -------------------------------------------
-# OCR văn bản từ PDF
+# Trích xuất văn bản bằng OCR (Tesseract)
 # -------------------------------------------
-def extract_text_from_pdf(pdf_path):
+def extract_text_from_pdf_ocr(pdf_path):
     text = ""
     try:
         images = convert_from_path(
@@ -65,12 +59,12 @@ def extract_text_from_pdf(pdf_path):
         print(f"[OCR ERROR] {e}")
     return text.strip()
 
-# Sửa lỗi OCR cơ bản
+# Sửa lỗi nhận dạng ký tự thường gặp từ OCR
 def clean_ocr_text(text):
     corrections = {'l': '1', 'I': '1', 'O': '0', 'o': '0', 'Z': '2'}
     return ''.join(corrections.get(c, c) for c in text)
 
-# Trích xuất ngày ban hành
+# Trích xuất ngày ban hành từ văn bản
 def extract_promulgation_date(text):
     text = clean_ocr_text(text)
     date_patterns = [
@@ -94,7 +88,25 @@ def extract_promulgation_date(text):
                 continue
     return None
 
-# Tạo index nếu chưa tồn tại
+# Trích xuất loại văn bản (Công văn, Quyết định, ...)
+def extract_loai_van_ban(text):
+    loai_patterns = [
+        r"(Công văn)\s+số",
+        r"(Thông tư)\s+số",
+        r"(Quyết định)\s+số",
+        r"(Nghị định)\s+số",
+        r"(Chỉ thị)\s+số",
+        r"(Báo cáo)\s+số",
+        r"(Tờ trình)\s+số",
+        r"(Giấy mời)\s+số"
+    ]
+    for pattern in loai_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    return "Không rõ"
+
+# Tạo index trên Elasticsearch nếu chưa có
 def create_index():
     if es.indices.exists(index=INDEX_NAME):
         return
@@ -105,6 +117,7 @@ def create_index():
                 "file_path": {"type": "keyword"},
                 "content": {"type": "text"},
                 "ngay_ban_hanh": {"type": "date"},
+                "loai_van_ban": {"type": "keyword"},
                 "vector": {
                     "type": "dense_vector",
                     "dims": 384,
@@ -116,7 +129,7 @@ def create_index():
     }
     es.indices.create(index=INDEX_NAME, body=mapping)
 
-# Xử lý 1 file PDF: OCR → vector hóa → index
+# Xử lý một file PDF: OCR -> Vector hóa -> Gửi vào Elasticsearch
 def process_pdf_for_indexing(pdf_path):
     create_index()
     doc_id = os.path.basename(pdf_path)
@@ -128,10 +141,11 @@ def process_pdf_for_indexing(pdf_path):
     print(f"🔄 Đang xử lý: {doc_id}")
     start_time = time.time()
 
-    text = extract_text_from_pdf(pdf_path)
+    text = extract_text_from_pdf_ocr(pdf_path)
     if not text:
-        return {"status": "error", "message": "Không thể OCR file"}
+        return {"status": "error", "message": "Không thể trích xuất nội dung"}
 
+    loai_van_ban = extract_loai_van_ban(text)
     ngay_ban_hanh = extract_promulgation_date(text)
     vector = model.encode(text, convert_to_numpy=True, normalize_embeddings=True).tolist()
 
@@ -143,6 +157,7 @@ def process_pdf_for_indexing(pdf_path):
             "file_path": pdf_path,
             "content": text,
             "ngay_ban_hanh": ngay_ban_hanh,
+            "loai_van_ban": loai_van_ban,
             "vector": vector
         }
     }
@@ -154,6 +169,6 @@ def process_pdf_for_indexing(pdf_path):
         "id": doc_id,
         "title": doc["_source"]["title"],
         "ngay_ban_hanh": ngay_ban_hanh,
+        "loai_van_ban": loai_van_ban,
         "time": f"{total_time:.2f}s"
     }
-

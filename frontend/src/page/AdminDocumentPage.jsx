@@ -20,7 +20,7 @@ const AdminDocumentPage = () => {
     const fetchDocuments = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://192.168.1.8:5000/api/admin/documents', {
+        const res = await axios.get('http://localhost:5000/api/admin/documents', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setDocs(res.data);
@@ -51,31 +51,33 @@ const AdminDocumentPage = () => {
     }
   };
 
-  const handleSearch = async ({ query, field, fromDate, toDate }) => {
-    setSearching(true);
-    setLoading(true);
-    try {
-      const params = {
-        query,
-        field,
-        page: 1,
-        size: 20,
-      };
-      if (fromDate) params.fromDate = fromDate;
-      if (toDate) params.toDate = toDate;
+  const handleSearch = async ({ query, field, fromDate, toDate, documentType }) => {
+  setSearching(true);
+  setLoading(true);
+  try {
+    const params = {
+      query: query || "",     // <- Vẫn truyền query, ngay cả khi rỗng
+      field,
+      page: 1,
+      size: 20,
+    };
+    if (fromDate) params.fromDate = fromDate;
+    if (toDate) params.toDate = toDate;
+    if (documentType) params.documentType = documentType;
 
-      const res = await axios.get('http://localhost:5000/api/search', {
-        params,
-      });
-      setDocs(res.data.results || []);
-    } catch (error) {
-      console.error('Lỗi tìm kiếm:', error);
-      toast.error("❌ Lỗi khi tìm kiếm tài liệu.");
-    } finally {
-      setLoading(false);
-      setSearching(false);
-    }
-  };
+    const res = await axios.get('http://localhost:5000/api/search', {
+      params,
+    });
+    setDocs(res.data.results || []);
+  } catch (error) {
+    console.error('Lỗi tìm kiếm:', error);
+    toast.error("❌ Lỗi khi tìm kiếm tài liệu.");
+  } finally {
+    setLoading(false);
+    setSearching(false);
+  }
+};
+
 
   return (
     <>

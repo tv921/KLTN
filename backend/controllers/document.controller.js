@@ -9,7 +9,7 @@ async function getDocument(req, res) {
       return res.status(400).json({ error: 'Thiếu ID tài liệu.' });
     }
 
-    const indicesToCheck = ['pdf_documents1'];
+    const indicesToCheck = ['pdf_documents2'];
     for (const index of indicesToCheck) {
       try {
         const response = await client.get({ index, id });
@@ -30,7 +30,7 @@ async function getDocument(req, res) {
 async function getAllDocuments(req, res) {
   try {
     const response = await client.search({
-      index: 'pdf_documents1',
+      index: 'pdf_documents2',
       size: 100,
       query: { match_all: {} }
     });

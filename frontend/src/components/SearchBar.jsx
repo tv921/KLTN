@@ -7,12 +7,21 @@ const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
   const [field, setField] = useState('all');
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [documentType, setDocumentType] = useState('');
 
-  const handleSearch = () => {
-    if (query.trim() !== '') {
-      onSearch({ query, field, fromDate, toDate });
-    }
-  };
+const handleSearch = () => {
+  // Nếu tất cả các trường đều trống thì không làm gì cả (tránh gửi truy vấn vô nghĩa)
+  if (!query && !fromDate && !toDate && !documentType && field === 'all') {
+    alert('Vui lòng nhập từ khóa hoặc chọn bộ lọc để tìm kiếm.');
+    return;
+  }
+
+  onSearch({ query, field, fromDate, toDate, documentType });
+};
+
+
+console.log('Gửi truy vấn:', { query, field, fromDate, toDate, documentType });
+
 
   const toggleAdvancedOptions = () => {
     setIsAdvancedOpen(!isAdvancedOpen);
@@ -77,6 +86,22 @@ const SearchBar = ({ onSearch }) => {
               placeholder="Đến ngày"
             />
           </div>
+
+          <select
+            value={documentType}
+            onChange={(e) => setDocumentType(e.target.value)}
+            className="px-4 py-3 border border-gray-300 rounded-xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Tất cả loại văn bản</option>
+            <option value="Công văn">Công văn</option>
+            <option value="Thông tư">Thông tư</option>
+            <option value="Quyết định">Quyết định</option>
+            <option value="Nghị định">Nghị định</option>
+            <option value="Chỉ thị">Chỉ thị</option>
+            <option value="Tờ trình">Tờ trình</option>
+            <option value="Báo cáo">Báo cáo</option>
+            <option value="Giấy mời">Giấy mời</option>
+          </select>
         </div>
       )}
     </div>

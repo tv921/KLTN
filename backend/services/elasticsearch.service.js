@@ -15,7 +15,7 @@ client.ping()
   .then(() => console.log('Kết nối Elasticsearch thành công'))
   .catch(err => console.error('Lỗi kết nối Elasticsearch:', err));
 
-async function searchDocuments(query, type = 'keyword', page = 1, size = 10, field = 'all', fromDate, toDate){
+async function searchDocuments(query, type = 'keyword', page = 1, size = 10, field = 'all', fromDate, toDate, documentType){
   const from = (page - 1) * size;
   let body;
 
@@ -35,43 +35,54 @@ async function searchDocuments(query, type = 'keyword', page = 1, size = 10, fie
       }
     };
   } else {
-    // Xác định field cần tìm
-      let fields = ['title', 'content'];
-      if (field === 'title') fields = ['title'];
-      else if (field === 'content') fields = ['content'];
+    // Keyword search (full-text)
+    let fields = ['title', 'content'];
+    if (field === 'title') fields = ['title'];
+    else if (field === 'content') fields = ['content'];
 
-      const must = [{
+    const must = [];
+    const filter = [];
+
+    // 👉 Nếu query có nội dung thì thêm multi_match
+    if (query && query.trim() !== "") {
+      must.push({
         multi_match: {
           query,
           fields,
           fuzziness: 'AUTO'
         }
-      }];
+      });
+    }
 
+    // 👉 Lọc theo ngày ban hành
+    if (fromDate || toDate) {
+      const range = {};
+      if (fromDate) range.gte = fromDate;
+      if (toDate) range.lte = toDate;
+      filter.push({ range: { ngay_ban_hanh: range } });
+    }
 
-      const filter = [];
+    // 👉 Lọc theo loại văn bản
+    if (documentType) {
+      filter.push({ term: { loai_van_ban: documentType } });
+    }
 
-      if (fromDate || toDate) {
-        const range = {};
-        if (fromDate) range.gte = fromDate;
-        if (toDate) range.lte = toDate;
-        filter.push({ range: { ngay_ban_hanh: range } });
-      }
+    // 👉 Nếu không có query và không có filter thì dùng match_all
+    const finalQuery = (must.length > 0 || filter.length > 0)
+      ? { bool: { must, filter } }
+      : { match_all: {} };
 
-      body = {
-        from,
-        size,
-        query: {
-          bool: {
-            must,
-            filter
-          }
-        }
-      };
+    body = {
+      from,
+      size,
+      query: finalQuery
+    };
   }
 
-  return client.search({ index: 'pdf_documents1', body });
+  console.dir(body, { depth: null });
+  return client.search({ index: 'pdf_documents2', body });
 }
+
 
 
 module.exports = { client, searchDocuments};
