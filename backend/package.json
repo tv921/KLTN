@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0",
@@ -19,5 +19,8 @@
     "multer": "^2.0.0",
     "nodemailer": "^7.0.3",
     "p-limit": "^6.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

@@ -1,0 +1,186 @@
+[
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd63"
+    },
+    "email": "user1@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "admin",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-01T10:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-01T10:00:00.000Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd64"
+    },
+    "email": "user2@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-02T11:15:30.123Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-02T11:15:30.123Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd65"
+    },
+    "email": "user3@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": false,
+    "otpCode": "123456",
+    "otpExpires": {
+      "$date": "2025-06-03T12:30:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2025-06-03T09:45:00.456Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-03T09:45:00.456Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd66"
+    },
+    "email": "user4@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-04T14:20:10.789Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-04T14:20:10.789Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd67"
+    },
+    "email": "user5@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "admin",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-05T16:05:25.321Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-05T16:05:25.321Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd68"
+    },
+    "email": "user6@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": false,
+    "otpCode": "654321",
+    "otpExpires": {
+      "$date": "2025-06-06T18:00:00.000Z"
+    },
+    "createdAt": {
+      "$date": "2025-06-06T15:30:40.654Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-06T15:30:40.654Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd69"
+    },
+    "email": "user7@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-07T08:10:55.987Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-07T08:10:55.987Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd6a"
+    },
+    "email": "user8@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-08T17:40:05.111Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-08T17:40:05.111Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd6b"
+    },
+    "email": "user9@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "admin",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-09T09:00:15.222Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-09T09:00:15.222Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "683def2d50bfdb536cacbd6c"
+    },
+    "email": "user10@example.com",
+    "password": "$2b$10$EG.wSwUajqqHTaLGcwB8XeQWl5eb4Y.TTiZ5C1zSwQSx2l7xSGOJe",
+    "role": "user",
+    "verified": true,
+    "otpCode": null,
+    "otpExpires": null,
+    "createdAt": {
+      "$date": "2025-06-10T20:25:35.333Z"
+    },
+    "updatedAt": {
+      "$date": "2025-06-10T20:25:35.333Z"
+    },
+    "__v": 0
+  }
+]

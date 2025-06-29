@@ -3,15 +3,43 @@ const User = require('../models/user.model');
 // Lấy danh sách tất cả người dùng (chỉ admin mới dùng)
 exports.getAllUsers = async (req, res) => {
   try {
-    const { email, role } = req.query;
-    const filter = {};
-    if (email) filter.email = { $regex: email, $options: 'i' };
-    if (role) filter.role = role;
+    // 1. Lấy các tham số từ query string với giá trị mặc định
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const email = req.query.email;
+    const role = req.query.role;
 
-    const users = await User.find(filter, '-password -otpCode -otpExpires');
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: 'Lỗi server', error: err.message });
+    // 2. Xây dựng đối tượng query để lọc
+    const filterQuery = {};
+    if (email) {
+      // Sử dụng regex để tìm kiếm email chứa chuỗi, không phân biệt hoa thường
+      filterQuery.email = { $regex: email, $options: 'i' };
+    }
+    if (role) {
+      filterQuery.role = role;
+    }
+
+    // 3. Đếm tổng số tài liệu khớp với bộ lọc
+    const totalUsers = await User.countDocuments(filterQuery);
+
+    // 4. Tính tổng số trang
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // 5. Lấy danh sách người dùng cho trang hiện tại, sắp xếp theo ngày tạo mới nhất
+    const users = await User.find(filterQuery)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // 6. Trả về kết quả theo cấu trúc yêu cầu của frontend
+    res.status(200).json({
+      users,
+      totalPages,
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách người dùng:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ nội bộ' });
   }
 };
 

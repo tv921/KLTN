@@ -29,18 +29,29 @@ async function getDocument(req, res) {
 
 async function getAllDocuments(req, res) {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const size = parseInt(req.query.size) || 10;
+    const from = (page - 1) * size;
+
     const response = await client.search({
       index: 'pdf_documents2',
-      size: 100,
+      from,
+      size,
       query: { match_all: {} }
     });
 
-    res.json(response.hits.hits);
+    res.json({
+      results: response.hits.hits,
+      total: response.hits.total.value,
+      page,
+      size
+    });
   } catch (error) {
     console.error('Lỗi khi lấy danh sách tài liệu:', error);
     res.status(500).json({ error: 'Không thể lấy danh sách tài liệu.' });
   }
 }
+
 
 
 async function deleteDocument(req, res) {
