@@ -30,7 +30,8 @@ async function sendOTPEmail(to, otp) {
 
 // --- Đăng ký tài khoản ---
 exports.register = async (req, res) => {
-  const { email, password, role } = req.body;
+  // Nhận thêm trường 'name' từ request body
+  const { name, email, password, role } = req.body;
 
   try {
     const existing = await User.findOne({ email });
@@ -39,6 +40,7 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
+      name, // Thêm 'name' vào đối tượng user mới
       email,
       password: hashedPassword,
       role,
@@ -61,7 +63,7 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).lean();
     if (!user) return res.status(401).json({ message: 'Email không tồn tại' });
 
     const match = await bcrypt.compare(password, user.password);
@@ -80,6 +82,7 @@ exports.login = async (req, res) => {
     res.json({
       accessToken: token,
       user: {
+        name: user.name,   
         email: user.email,
         role: user.role
       }
@@ -159,7 +162,3 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Lỗi server', error: err.message });
   }
 };
-
-
-
-

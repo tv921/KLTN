@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.13.2-slim
 
 # Cài đặt các thư viện hệ thống cần thiết
 RUN apt-get update && apt-get install -y \

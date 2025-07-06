@@ -8,6 +8,7 @@ import FormCardLayout from './FormCardLayout';
 
 const AuthForm = ({ isLogin }) => {
   const navigate = useNavigate();
+  const [name, setName] = useState(''); // Thêm state cho tên người dùng
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -21,6 +22,12 @@ const AuthForm = ({ isLogin }) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
+    // (Tùy chọn) Thêm validation cho tên người dùng
+    if (!isLogin && !name.trim()) {
+      setError('Vui lòng nhập tên của bạn');
+      return;
+    }
 
     if (!email.includes('@')) {
       setError('Email không hợp lệ');
@@ -40,14 +47,15 @@ const AuthForm = ({ isLogin }) => {
     setLoading(true);
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const res = await axios.post(`http://localhost:5000${endpoint}`, {
-        email,
-        password
-      });
+      // Thêm 'name' vào payload khi đăng ký
+      const payload = isLogin ? { email, password } : { name, email, password };
+      
+      const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
 
       if (isLogin) {
         localStorage.setItem('token', res.data.accessToken);
         localStorage.setItem('role', res.data.user.role);
+        localStorage.setItem('name', res.data.user.name);
         navigate(res.data.user.role === 'admin' ? '/search' : '/upload');
       } else {
         toast.success('Đăng ký thành công! Vui lòng kiểm tra email và nhập mã OTP để xác minh.');
@@ -82,6 +90,17 @@ const AuthForm = ({ isLogin }) => {
       {success && <p className="text-green-600 text-sm mb-2">{success}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Thêm ô nhập liệu cho tên, chỉ hiển thị khi không phải là form đăng nhập */}
+        {!isLogin && (
+          <input
+            type="text"
+            placeholder="Tên người dùng"
+            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        )}
+
         <input
           type="email"
           placeholder="Email"
@@ -151,4 +170,3 @@ const AuthForm = ({ isLogin }) => {
 };
 
 export default AuthForm;
-
